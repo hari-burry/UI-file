@@ -1,102 +1,341 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform } from 'react-native';
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { StyleSheet, Image, Platform, Pressable,Text } from 'react-native';
+import { View,TouchableOpacity,FlatList,KeyboardAvoidingView,TextInput } from 'react-native';
+import {Svg, Path,Circle } from 'react-native-svg';
+import TimeInputComponent from '@/components/TimeInputComponent';
+import DelItemComponent from '@/components/DelItem';
+import AddItemComponent from '@/components/AddItem';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
-export default function TabTwoScreen() {
+
+export default function Explore(){
+  const [bftime,setBftime]=useState(false);
+  const [open,setOpen]=useState(`XX:XX`);
+  const [close,setClose]=useState(`XX:XX`);
+  const [del,setDel]=useState(false);
+  const [name,setName]=useState("");
+  const [add,setAdd]=useState(false);
+
+  useEffect(() => {
+    // This will run once when the component mounts
+    fetch("http://192.168.1.6:3000/time?meal=breakfast")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Menu fetched:", data);
+        setOpen(data[0].openingTime);
+        setClose(data[0].closingTime);
+        
+      })
+      .catch((error) => console.error("Error fetching menu:", error));
+  }, []);
+
+  const arr = [
+    { itemName: "Chapathi",price:'30' },
+    { itemName: "Dosa",price:'40' },
+    { itemName: "Idli",price:'30' },
+    { itemName: "Poori",price:'30' },
+    { itemName: "Pongal",price:'30' },
+  ];
+
+  function timesubmit(){
+    const timejson={
+      opening:open,
+      closing:close,
+      meal:"breakfast"
+    }
+    console.log(timejson);
+    fetch("http://192.168.1.6:3000/time",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(timejson)
+    })
+    .then(response => response.json())
+    .then(data => console.log("Success:", data))
+    .catch(error => console.error("Error:", error));
+    setBftime(false);
+}
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText> library
-          to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+     <View>
+      <View style={styles.navbar}>
+        <Pressable style={({pressed})=>[
+         styles.menubtn,
+         pressed?styles.menubtnpressed:null
+      ]}>
+          <Text style={styles.menubtntext}>Breakfast</Text>
+        </Pressable>
+        <Pressable style={({pressed})=>[
+         styles.menubtn,
+         pressed?styles.menubtnpressed:null
+      ]}>
+        <Text style={styles.menubtntext}>Lunch</Text>
+        </Pressable>
+        <Pressable style={({pressed})=>[
+         styles.menubtn,
+         pressed?styles.menubtnpressed:null
+      ]}>
+        <Text style={styles.menubtntext}>Dinner</Text>
+        </Pressable>
+      </View>
+      
+      <View style={styles.timecard}>
+        <View style={styles.timenav}> 
+         <Text style={styles.menutitle}>Breakfast</Text>
+         <TouchableOpacity onPress={()=>{if(!del && !add)
+          setBftime(true)}}>
+         <Svg  style={styles.svg} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <Path d="M21.2799 6.40005L11.7399 15.94C10.7899 16.89 7.96987 17.33 7.33987 16.7C6.70987 16.07 7.13987 13.25 8.08987 12.3L17.6399 2.75002C17.8754 2.49308 18.1605 2.28654 18.4781 2.14284C18.7956 1.99914 19.139 1.92124 19.4875 1.9139C19.8359 1.90657 20.1823 1.96991 20.5056 2.10012C20.8289 2.23033 21.1225 2.42473 21.3686 2.67153C21.6147 2.91833 21.8083 3.21243 21.9376 3.53609C22.0669 3.85976 22.1294 4.20626 22.1211 4.55471C22.1128 4.90316 22.0339 5.24635 21.8894 5.5635C21.7448 5.88065 21.5375 6.16524 21.2799 6.40005V6.40005Z"
+        stroke="#000000" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+        <Path d="M11 4H6C4.93913 4 3.92178 4.42142 3.17163 5.17157C2.42149 5.92172 2 6.93913 2 8V18C2 19.0609 2.42149 20.0783 3.17163 20.8284C3.92178 21.5786 4.93913 22 6 22H17C19.21 22 20 20.2 20 18V13"
+        stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </Svg>
+        </TouchableOpacity>
+         </View>
+
+         <View style={styles.timedisplayer}>
+          <View style={styles.timeinddis}>
+          <Text style={styles.time}>{open}</Text>
+          <Text style={styles.timetext}>Opening Time</Text>
+          </View>
+          <View style={styles.timeinddis}>
+          <Text style={styles.time}>{close}</Text>
+          <Text style={styles.timetext}>Closing Time</Text>
+          </View>
+
+
+         </View>
+      </View>
+      {
+        bftime && 
+      <TimeInputComponent
+      setBftime={setBftime}
+      open={open}
+      close={close}
+      setOpen={setOpen}
+      setClose={setClose}
+      timesubmit={timesubmit}
+
+      
+      ></TimeInputComponent>
+}
+
+{
+  del &&
+   <DelItemComponent 
+   name={name}
+   setDel={setDel}
+   >
+
+   </DelItemComponent>
+
+
+    
+
+}
+<View style={styles.view}>
+<Text style={styles.menutitle2}>Menu</Text>
+<TouchableOpacity
+onPressOut={()=>{if(!del && !bftime)setAdd(true)}}
+>
+<Svg
+        style={styles.icon2}
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <Path
+          d="M3 10V18C3 19.1046 3.89543 20 5 20H11M3 10V6C3 4.89543 3.89543 4 5 4H19C20.1046 4 21 4.89543 21 6V10M3 10H21M21 10V13"
+          stroke="#000000"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <Path
+          d="M17 14V17M17 20V17M17 17H14M17 17H20"
+          stroke="#000000"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <Circle cx="6" cy="7" r="1" fill="#000000" />
+        <Circle cx="9" cy="7" r="1" fill="#000000" />
+      </Svg>
+      </TouchableOpacity>
+</View>
+<View style={styles.container}>
+  
+      {arr.length > 0 && (
+        <FlatList
+          data={arr}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item, index }) => (
+            <View style={styles.row}>
+              <Text style={styles.cellLeft}>{item.itemName}</Text>
+              <Text style={styles.cellCenter}>{item.price}</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  if(!add && !bftime){
+                  setName(item.itemName)
+                  setDel(true);
+                  }
+                  
+                }}
+                style={styles.button}
+              >
+                <View style={styles.iconContainer}>
+              
+                  <Text  style={styles.icon}>🗑️</Text> 
+                </View>
+              </TouchableOpacity>
+            </View>
+          )}
+        />
+      )}
+    </View>
+
+    {
+      add &&
+     <AddItemComponent  
+      setAdd={setAdd}
+      >
+
+     </AddItemComponent>
+
+    }
+
+
+
+     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+   view:{
+     flexDirection:'row',
+     justifyContent:'space-between',
+     paddingHorizontal:10,
+     alignItems:'center',
+   },
+   navbar:{
+    flexDirection:'row',
+    justifyContent:'space-evenly',
+    height:50,
+    alignItems:'center',
+    paddingTop:4
+   },
+   menubtn:{
+     backgroundColor:'#ffbe0b',
+     borderRadius:50,
+     padding:8,
+     justifyContent:'center',
+     alignItems:'center',
+     width:120,
+     borderWidth:1,
+     borderColor:'transparent'
+
+   },
+   menubtnpressed:{
+    borderColor:'black'
+     
+   },
+   menubtntext:{
+      fontSize:15,
+      fontWeight:"bold"
+   },
+
+   timecard:{
+    marginTop:18,
+    borderRadius:10,
+    padding:8,
+     width:'90%',
+     margin:'auto',
+     height:'25%',
+     backgroundColor:'#ffbe0b',  
+   },
+   menutitle:{
+     fontWeight:'bold',
+     fontSize:20
+   },
+   menutitle2:{
+    fontWeight:'bold',
+    fontSize:30,
   },
-  titleContainer: {
+   timenav:{
+
+     justifyContent:'space-between',
+     flexDirection:'row',
+   },
+   timedisplayer:{
+    flexDirection:'row',
+    flex:1,
+    justifyContent:'center',
+    alignItems:'center'
+   },
+   svg:{
+    width:30,
+    height:30
+   },
+   timeinddis:{
+    flex:1,
+    height:'100%',
+    justifyContent:'center',
+    alignItems:'center'
+   },
+   time:{
+     fontWeight:'bold',
+     fontSize:40
+   },
+   timetext:{
+     borderWidth:1,
+     borderColor:'#ffbe0b',
+     marginTop:2,
+     fontSize:17
+   },
+   container: {
+    padding: 16,
+    zIndex:0
+  },
+  row: {
     flexDirection: 'row',
-    gap: 8,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
+  cellLeft: {
+    flex: 1,
+    paddingHorizontal: 8,
+    textAlign: 'left',
+  },
+  cellCenter: {
+    flex: 1,
+    paddingHorizontal: 8,
+    textAlign: 'center',
+  },
+  button: {
+    padding: 4,
+    borderRadius: 12,
+    backgroundColor: 'transparent', // Set appropriate background color
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  icon: {
+    fontSize: 24, // Size of your icon
+  },
+  icon2: {
+    backgroundColor:'transparent', // Example active effect for bg-gray-200
+    borderRadius: 8,
+    width: 45,
+    height: 45,
+  },
+  
 });
+
+

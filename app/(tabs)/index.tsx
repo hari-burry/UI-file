@@ -1,70 +1,102 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-
+import { StyleSheet } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
+import { View, Text, TextInput,Image } from 'react-native';
+import burger from '../../assets/images/burger.png';
+import { useState } from 'react';
+import { useNavigation } from 'expo-router';
 export default function HomeScreen() {
+  const [pwd,setPwd]=useState('');
+  const [red,setRed]=useState(false);
+  const navigation=useNavigation();
+  const changepwd=(text)=>{
+    setPwd(text);
+    setRed(false);
+    if(text==='1234'){
+      setRed(false);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'explore'
+      }]});
+      setPwd('');
+    }
+    else{
+      if(text==='')setRed(false);
+      else setRed(true);
+    }
+
+  }
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      <View style={styles.box}>
+      <Image
+        source={burger}
+        style={styles.img}
+
+       />
+      <View style={styles.inpdiv}>
+        <Text style={red?styles.msg2:styles.msg}>{red?'Incorrect Passcode':'Enter your Passcode'}</Text>
+      <TextInput 
+      style={red? styles.inputred:styles.input} 
+      keyboardType='numeric'
+      value={pwd}
+      onChangeText={changepwd}
+      />
+      </View>
+      </View>
+
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    justifyContent: 'center', 
+    alignItems: 'center',     
+    backgroundColor:'white',
+    padding:16,              
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+ 
+  input: {
+    borderColor: 'black',
+    borderWidth:2,
+    width:'100%',             
+    padding: 10,    
+    borderRadius:5, 
+    marginTop:2,     
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  inputred: {
+    borderColor: 'red',
+    borderWidth:2,
+    width:'100%',             
+    padding: 10,    
+    borderRadius:5, 
+    marginTop:2,     
   },
+  inpdiv:{
+    width:'94%',
+    justifyContent: 'center', 
+  },
+  box:{
+     width:'90%',
+     height:'40%',
+     justifyContent:'center',
+     alignItems:'center'
+  },
+
+  msg:{
+    marginLeft:2,
+    fontSize:18,
+  },
+  msg2:{
+    marginLeft:2,
+    fontSize:18,
+    color:'red'
+  },
+  img:{
+    width:150,
+    height:150,
+    marginBottom:35,
+  }
+
 });
